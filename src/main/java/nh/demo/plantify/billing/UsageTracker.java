@@ -1,10 +1,12 @@
 package nh.demo.plantify.billing;
 
+import nh.demo.plantify.plant.PlantRegisteredEvent;
 import nh.demo.plantify.shared.CareTaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,8 +21,17 @@ public class UsageTracker {
         this.usageRepository = usageRepository;
     }
 
-    @Transactional
-    public void registerSetupFee(UUID plantId, UUID ownerId) {
+    @ApplicationModuleListener
+    void onPlantCreated(PlantRegisteredEvent event) {
+        registerSetupFee(event.plantId(), event.ownerId());
+    }
+
+    void registerSetupFee(UUID plantId, UUID ownerId) {
+
+//        if (true) {
+//            throw new IllegalStateException("Schade, heute klappt hier leider gar nix!");
+//        }
+
         UsageRecord usageRecord = new UsageRecord(
             ownerId,
             UsageRecord.UsageType.SETUP_FEE,
